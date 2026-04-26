@@ -344,4 +344,4 @@ AI & Data Science Engineering Student
 
 ---
 
-> **Disclaimer:** FWI predictions are for educational purposes only. Do not use for real wildfire risk assessment.<img width="1915" height="769" alt="Screenshot 2026-04-26 172233" src="https://github.com/user-attachments/assets/7e05a263-3745-49eb-9d5f-f1f6135321b9" />
+> **Disclaimer:** FWI predictions are for educational purposes only. Do not use for real wildfire risk assessment.
