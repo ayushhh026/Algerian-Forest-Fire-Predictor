@@ -175,6 +175,41 @@ A lightweight form interface that accepts all 9 input features and displays the 
 
 ---
 
+## AWS Deployment
+
+### Architecture
+```
+GitHub (main branch)
+        │
+        ▼  auto-trigger on push
+AWS CodePipeline
+        │
+        ├── Stage 1: Source  (GitHub via GitHub App)
+        │
+        └── Stage 2: Deploy  (AWS Elastic Beanstalk)
+                    │
+                    ▼
+        EC2 Instance (Python 3.13 · Amazon Linux 2023)
+        Nginx → Uvicorn → FastAPI
+```
+
+### CodePipeline — Source + Deploy (Both Succeeded ✅)
+Fully automated CI/CD — every push to GitHub triggers the pipeline and redeploys to EBS automatically. Zero manual steps.
+
+<img width="1915" height="769" alt="Screenshot 2026-04-26 172233" src="https://github.com/user-attachments/assets/77ebc4af-e007-4bf2-92a2-eddc011a1ae7" />
+
+### Elastic Beanstalk — Environment Health: Ok ✅
+Environment `Algerian-Forest-Fire-Predictor-env` running on Python 3.13, WebServer tier, health status **Ok**.
+
+<img width="1918" height="768" alt="Screenshot 2026-04-26 164807" src="https://github.com/user-attachments/assets/4e7b8d18-6561-488b-8698-f5c3e08240ed" />
+
+### Live — FWI Prediction on AWS
+App live on EBS public URL (`ap-south-1`), accepting real inputs and returning predictions via the deployed Ridge model.
+
+<img width="875" height="801" alt="Screenshot 2026-04-26 172157" src="https://github.com/user-attachments/assets/604d9168-fe95-4282-8baf-10e21730ac99" />
+
+---
+
 ## Tech Stack
 
 | Layer | Technology | Role |
@@ -309,4 +344,4 @@ AI & Data Science Engineering Student
 
 ---
 
-> **Disclaimer:** FWI predictions are for educational purposes only. Do not use for real wildfire risk assessment.
+> **Disclaimer:** FWI predictions are for educational purposes only. Do not use for real wildfire risk assessment.<img width="1915" height="769" alt="Screenshot 2026-04-26 172233" src="https://github.com/user-attachments/assets/7e05a263-3745-49eb-9d5f-f1f6135321b9" />
