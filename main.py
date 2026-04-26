@@ -2,8 +2,6 @@ from fastapi import FastAPI, Request , Form
 from fastapi.templating import Jinja2Templates
 from typing import Annotated
 import pickle 
-import numpy as np
-import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 
