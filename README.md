@@ -1,0 +1,5 @@
+heatmap = <img width="784" height="899" alt="Screenshot 2026-04-26 153346" src="https://github.com/user-attachments/assets/333ec972-cd25-47df-9806-d745829c64b6" />
+features before standardization and after standardization using standard scaler = <img width="1400" height="511" alt="Screenshot 2026-04-26 153532" src="https://github.com/user-attachments/assets/da0dfee3-31ae-4bfe-99e2-e5e9d19e2d02" />
+Ridge regresson  ouput poltted using scatter plot that show linear relationship test and predicted values of y <img width="702" height="530" alt="Screenshot 2026-04-26 153345" src="https://github.com/user-attachments/assets/7f4e59ba-0a15-48ef-bfe2-da84e662da4d" />
+simple front end html form that is used to predict and shows output <img width="613" height="410" alt="Screenshot 2026-04-26 153309" src="https://github.com/user-attachments/assets/94272237-daae-4a35-84d0-4d540f23733d" />
+fasapi/docs page that shows how many methods created and schemas and all <img width="1646" height="699" alt="Screenshot 2026-04-26 153318" src="https://github.com/user-attachments/assets/d3697c73-4cf5-47ca-aef1-aef7e76f8af7" />
