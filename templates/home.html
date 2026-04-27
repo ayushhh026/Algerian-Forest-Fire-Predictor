@@ -1,25 +1,542 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FWI Predictor — Algerian Forest Fire</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --card: #161616;
+    --border: #2a2a2a;
+    --accent: #ff4500;
+    --accent2: #ff8c00;
+    --text: #f0ede8;
+    --muted: #666;
+    --success: #22c55e;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Background fire particle effect */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 80%, rgba(255,69,0,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 80% 20%, rgba(255,140,0,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 30% at 50% 100%, rgba(255,69,0,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Animated grid lines */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,69,0,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,69,0,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 680px;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  .header-tag {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .header-tag::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: var(--sans);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* Card */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+  }
+
+  /* Form grid */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .field:nth-child(1)  { animation-delay: 0.05s; }
+  .field:nth-child(2)  { animation-delay: 0.10s; }
+  .field:nth-child(3)  { animation-delay: 0.15s; }
+  .field:nth-child(4)  { animation-delay: 0.20s; }
+  .field:nth-child(5)  { animation-delay: 0.25s; }
+  .field:nth-child(6)  { animation-delay: 0.30s; }
+  .field:nth-child(7)  { animation-delay: 0.35s; }
+  .field:nth-child(8)  { animation-delay: 0.40s; }
+  .field:nth-child(9)  { animation-delay: 0.45s; }
+
+  .field.full { grid-column: 1 / -1; }
+
+  label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .label-hint {
+    font-size: 0.6rem;
+    color: #444;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  input[type="text"], input[type="number"], select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    padding: 0.65rem 0.85rem;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--accent);
+    background: #1a1a1a;
+    box-shadow: 0 0 0 3px rgba(255,69,0,0.1);
+  }
+
+  input:valid:not(:placeholder-shown) {
+    border-color: #2a2a2a;
+    background: #141414;
+  }
+
+  input::placeholder { color: #333; }
+
+  /* Select for Classes and Region */
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.85rem center;
+    padding-right: 2rem;
+  }
+
+  select option { background: #1a1a1a; color: var(--text); }
+
+  /* Divider */
+  .divider {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.25rem 0;
+  }
+
+  .divider span {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: #333;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Submit button */
+  .btn-wrap {
+    grid-column: 1 / -1;
+    margin-top: 0.5rem;
+  }
+
+  button[type="submit"] {
+    width: 100%;
+    padding: 0.85rem 2rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 2px;
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+
+  button[type="submit"]:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+
+  button[type="submit"]:active {
+    transform: translateY(0);
+  }
+
+  button[type="submit"]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.1));
+  }
+
+  /* Loading state */
+  button[type="submit"].loading {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  /* Result box */
+  .result-box {
+    grid-column: 1 / -1;
+    margin-top: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: rgba(34, 197, 94, 0.05);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: resultIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  @keyframes resultIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .result-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--success);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .result-value {
+    font-family: var(--mono);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--success);
+    letter-spacing: -0.02em;
+  }
+
+  .result-unit {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: #444;
+    margin-top: 0.25rem;
+  }
+
+  /* Risk indicator */
+  .risk-badge {
+    padding: 0.3rem 0.75rem;
+    border-radius: 2px;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .risk-low    { background: rgba(34,197,94,0.15);  color: #22c55e; }
+  .risk-med    { background: rgba(234,179,8,0.15);   color: #eab308; }
+  .risk-high   { background: rgba(249,115,22,0.15);  color: #f97316; }
+  .risk-extreme{ background: rgba(239,68,68,0.15);   color: #ef4444; }
+
+  /* Footer */
+  .footer {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-tag {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: #333;
+    letter-spacing: 0.1em;
+  }
+
+  .footer-tag a {
+    color: #444;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-tag a:hover { color: var(--accent); }
+
+  .model-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: #333;
+    letter-spacing: 0.08em;
+  }
+
+  .model-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  @media (max-width: 500px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .card { padding: 1.25rem; }
+  }
+</style>
+</head>
 <body>
-<div class="login">
-<h1>FWI Prediction</h1>
 
-<form action="/predict" method="post">
+<div class="wrapper">
 
-<input type="text" name="Temperature" placeholder="Temperature" required="required" /><br>
-<input type="text" name="RH" placeholder="RH" required="required" /><br>
-<input type="text" name="Ws" placeholder="Ws" required="required" /><br>
-<input type="text" name="Rain" placeholder="Rain" required="required" /><br>
-<input type="text" name="FFMC" placeholder="FFMC" required="required" /><br>
-<input type="text" name="DMC" placeholder="DMC" required="required" /><br>
-<input type="text" name="ISI" placeholder="ISI" required="required" /><br>
-<input type="text" name="Classes" placeholder="Classes" required="required" /><br>
-<input type="text" name="Region" placeholder="Region" required="required" /><br>
+  <div class="header">
+    <div class="header-tag">Prediction System</div>
+    <h1>Forest Weather<br/><span>Index Predictor</span></h1>
+    <p class="subtitle">// Ridge Regression · Algerian Forest Fire Dataset · AWS EBS</p>
+  </div>
 
-<button type="submit">Predict</button>
-</form>
+  <div class="card">
+    <form action="/predict" method="post" id="predictForm">
+      <div class="form-grid">
 
-<h2>The FWI prediction is {{ result }}</h2>
+        <!-- Weather Parameters -->
+        <div class="divider"><span>Weather Parameters</span></div>
+
+        <div class="field">
+          <label>Temperature <span class="label-hint">°C</span></label>
+          <input type="text" name="Temperature" placeholder="e.g. 29" required />
+        </div>
+
+        <div class="field">
+          <label>RH <span class="label-hint">Relative Humidity %</span></label>
+          <input type="text" name="RH" placeholder="e.g. 57" required />
+        </div>
+
+        <div class="field">
+          <label>Ws <span class="label-hint">Wind Speed km/h</span></label>
+          <input type="text" name="Ws" placeholder="e.g. 18" required />
+        </div>
+
+        <div class="field">
+          <label>Rain <span class="label-hint">mm/day</span></label>
+          <input type="text" name="Rain" placeholder="e.g. 0" required />
+        </div>
+
+        <!-- Fire Weather Indices -->
+        <div class="divider"><span>Fire Weather Indices</span></div>
+
+        <div class="field">
+          <label>FFMC <span class="label-hint">Fine Fuel Moisture</span></label>
+          <input type="text" name="FFMC" placeholder="e.g. 65.7" required />
+        </div>
+
+        <div class="field">
+          <label>DMC <span class="label-hint">Duff Moisture Code</span></label>
+          <input type="text" name="DMC" placeholder="e.g. 3.4" required />
+        </div>
+
+        <div class="field full">
+          <label>ISI <span class="label-hint">Initial Spread Index</span></label>
+          <input type="text" name="ISI" placeholder="e.g. 1.3" required />
+        </div>
+
+        <!-- Classification -->
+        <div class="divider"><span>Classification</span></div>
+
+        <div class="field">
+          <label>Classes <span class="label-hint">Fire / Not Fire</span></label>
+          <select name="Classes" required>
+            <option value="" disabled selected>Select class</option>
+            <option value="1">1 — Fire</option>
+            <option value="0">0 — Not Fire</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Region <span class="label-hint">Algeria</span></label>
+          <select name="Region" required>
+            <option value="" disabled selected>Select region</option>
+            <option value="0">0 — Bejaia</option>
+            <option value="1">1 — Sidi Bel-Abbes</option>
+          </select>
+        </div>
+
+        <!-- Submit -->
+        <div class="btn-wrap">
+          <button type="submit" id="submitBtn">Run Prediction →</button>
+        </div>
+
+        <!-- Result -->
+        {% if result is defined and result != None %}
+        <div class="result-box" id="resultBox">
+          <div>
+            <div class="result-label">FWI Score</div>
+            <div class="result-value">{{ "%.4f"|format(result) }}</div>
+            <div class="result-unit">Fire Weather Index</div>
+          </div>
+          <div id="riskBadge"></div>
+        </div>
+        {% endif %}
+
+      </div>
+    </form>
+  </div>
+
+  <div class="footer">
+    <span class="footer-tag">Algerian Forest Fire Dataset · 2012</span>
+    <span class="model-badge"><span class="model-dot"></span> Ridge · R² 0.98</span>
+  </div>
 
 </div>
+
+<script>
+  // Button loading state
+  document.getElementById('predictForm').addEventListener('submit', function() {
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Computing...';
+    btn.classList.add('loading');
+  });
+
+  // Risk badge based on FWI value
+  const resultBox = document.getElementById('resultBox');
+  if (resultBox) {
+    const valueEl = resultBox.querySelector('.result-value');
+    const score = parseFloat(valueEl.textContent);
+    const badge = document.getElementById('riskBadge');
+
+    let cls, label;
+    if (score < 5)       { cls = 'risk-low';     label = 'Low Risk'; }
+    else if (score < 15) { cls = 'risk-med';     label = 'Moderate'; }
+    else if (score < 30) { cls = 'risk-high';    label = 'High Risk'; }
+    else                 { cls = 'risk-extreme'; label = 'Extreme'; }
+
+    badge.innerHTML = `<span class="risk-badge ${cls}">${label}</span>`;
+  }
+
+  // Input validation — only allow numbers and decimals
+  document.querySelectorAll('input[type="text"]').forEach(input => {
+    input.addEventListener('input', function() {
+      this.value = this.value.replace(/[^0-9.-]/g, '');
+    });
+  });
+</script>
 </body>
 </html>
