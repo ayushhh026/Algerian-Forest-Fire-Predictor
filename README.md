@@ -171,7 +171,8 @@ Two endpoints power the application:
 ### HTML Frontend
 A lightweight form interface that accepts all 9 input features and displays the predicted FWI score instantly.
 
-![Prediction Form UI](https://github.com/user-attachments/assets/94272237-daae-4a35-84d0-4d540f23733d)
+<img width="1638" height="909" alt="Screenshot 2026-04-27 093025" src="https://github.com/user-attachments/assets/5926bc74-df21-47b0-88a5-475edd2aa6d7" />
+
 
 ---
 
