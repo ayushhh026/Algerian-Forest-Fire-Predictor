@@ -205,9 +205,9 @@ Environment `Algerian-Forest-Fire-Predictor-env` running on Python 3.13, WebServ
 <img width="1918" height="768" alt="Screenshot 2026-04-26 164807" src="https://github.com/user-attachments/assets/4e7b8d18-6561-488b-8698-f5c3e08240ed" />
 
 ### Live — FWI Prediction on AWS
-App live on EBS public URL (`ap-south-1`), accepting real inputs and returning predictions via the deployed Ridge model.
+App live on EBS public URL (`us-east-1`), accepting real inputs and returning predictions via the deployed Ridge model.
 
-<img width="875" height="801" alt="Screenshot 2026-04-26 172157" src="https://github.com/user-attachments/assets/604d9168-fe95-4282-8baf-10e21730ac99" />
+<img width="1523" height="925" alt="Screenshot 2026-04-27 095700" src="https://github.com/user-attachments/assets/5ecf1f2a-5dcc-4eb4-b846-e7ad03e45b14" />
 
 ---
 
